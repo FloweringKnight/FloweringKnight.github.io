@@ -70,3 +70,9 @@ build-iPhoneSimulator/
 # .rubocop-https?--*
 
 # End of https://www.toptal.com/developers/gitignore/api/jekyll,ruby
+
+# 需求文档 (本地管理)
+.requirement/
+
+# IDE
+.idea/

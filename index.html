@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAKE-CLI - FloweringKnight</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="terminal-window">
+        <!-- 左侧信息栏 -->
+        <aside class="sidebar">
+            <div class="avatar-container">
+                <div class="avatar"></div>
+            </div>
+            
+            <div class="profile-info">
+                <h1 class="name">FloweringKnight</h1>
+                <p class="bio">热爱编程，喜欢折腾</p>
+                
+                <div class="contact-section">
+                    <a href="mailto:chenkeyu2006@gmail.com" class="contact-link">
+                        <span class="icon">📧</span>
+                        <span class="email">chenkeyu2006@gmail.com</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- 右侧 CLI 终端 -->
+        <main class="terminal-content">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span class="button close"></span>
+                    <span class="button minimize"></span>
+                    <span class="button maximize"></span>
+                </div>
+                <div class="terminal-title">FAKE-CLI — zsh</div>
+            </div>
+            
+            <div class="terminal-body">
+                <div class="output" id="output">
+                    <!-- 欢迎信息 -->
+                    <div class="output-line">
+                        <span class="text-green">Welcome to FAKE-CLI v1.0.0</span>
+                    </div>
+                    <div class="output-line">
+                        <span class="text-secondary">Type 'help' to see available commands.</span>
+                    </div>
+                    <div class="output-line"></div>
+                </div>
+                
+                <div class="input-line">
+                    <span class="prompt">user@fake-cli:~$</span>
+                    <input 
+                        type="text" 
+                        id="command-input" 
+                        class="command-input" 
+                        placeholder="输入命令..." 
+                        autocomplete="off" 
+                        autofocus
+                    >
+                    <span class="cursor">█</span>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/cli.js"></script>
+</body>
+</html>
