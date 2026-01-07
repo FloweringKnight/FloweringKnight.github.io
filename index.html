@@ -35,7 +35,7 @@
                     <span class="button minimize"></span>
                     <span class="button maximize"></span>
                 </div>
-                <div class="terminal-title">FAKE-CLI — zsh</div>
+                <div class="terminal-title">FAKE-CLI — bash</div>
             </div>
             
             <div class="terminal-body">
@@ -44,23 +44,36 @@
                     <div class="output-line">
                         <span class="text-green">Welcome to FAKE-CLI v1.0.0</span>
                     </div>
+                    <!-- 字符画 -->
+                    <div class="output-line ascii-art">
+<pre class="ascii-text">
+ _______      ___       __  ___  _______                 ______  __       __
+|   ____|    /   \     |  |/  / |   ____|               /      ||  |     |  |
+|  |__      /  ^  \    |  '  /  |  |__       ______    |  ,----'|  |     |  |
+|   __|    /  /_\  \   |    <   |   __|     |______|   |  |     |  |     |  |
+|  |      /  _____  \  |  .  \  |  |____               |  `----.|  `----.|  |
+|__|     /__/     \__\ |__|\__\ |_______|               \______||_______||__|
+</pre>
+                    </div>
                     <div class="output-line">
                         <span class="text-secondary">Type 'help' to see available commands.</span>
                     </div>
-                    <div class="output-line"></div>
+
                 </div>
                 
-                <div class="input-line">
-                    <span class="prompt">user@fake-cli:~$</span>
-                    <input 
-                        type="text" 
-                        id="command-input" 
-                        class="command-input" 
-                        placeholder="输入命令..." 
-                        autocomplete="off" 
-                        autofocus
-                    >
-                    <span class="cursor">█</span>
+                <div class="input-container">
+                    <div class="input-line">
+                        <span class="prompt">user@fake-cli:~$</span>
+                        <input
+                            type="text"
+                            id="command-input"
+                            class="command-input"
+                            placeholder="输入命令..."
+                            autocomplete="off"
+                            autofocus
+                        >
+                        <span class="cursor">█</span>
+                    </div>
                 </div>
             </div>
         </main>

@@ -210,9 +210,9 @@ body {
 
 .output-line {
     margin-bottom: 0.5rem;
-    white-space: pre-wrap;
+    white-space: PRE-LINE;
     word-wrap: break-word;
-    line-height: 1.6;
+    line-height: 1.0;
 }
 
 .text-green { color: var(--accent-green); }
@@ -232,14 +232,54 @@ body {
     text-decoration: underline;
 }
 
-/* ===== 输入区域 ===== */
+/* ===== ASCII 字符画 ===== */
+.ascii-art {
+    margin: 1.5rem 0;
+    line-height: 1.2;
+    width: 88%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.ascii-text {
+    color: var(--accent-blue);
+    font-size: 1.4rem;
+    line-height: 1.2;
+    white-space: pre;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(97, 175, 239, 0.3);
+    display: inline-block;
+    text-align: left;
+}
+
+/* ===== 输入容器 ===== */
+.input-container {
+    padding: 0.5rem 0;
+}
+
+.input-container:focus-within {
+    outline: none;
+}
+
 .input-line {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(36, 40, 59, 0.5);
+    transition: all 0.3s ease;
 }
 
+.input-container:focus-within .input-line {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(97, 175, 239, 0.2);
+    background: rgba(36, 40, 59, 0.8);
+}
+
+/* ===== 输入区域 ===== */
 .prompt {
     color: var(--accent-green);
     font-size: 1rem;
@@ -261,6 +301,7 @@ body {
 
 .command-input::placeholder {
     color: var(--text-secondary);
+    opacity: 0.7;
 }
 
 .cursor {
