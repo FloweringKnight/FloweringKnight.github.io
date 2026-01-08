@@ -65,10 +65,11 @@ body {
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: 3px solid var(--accent-blue);
     box-shadow: 0 4px 15px rgba(97, 175, 239, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    object-fit: cover;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .avatar:hover {
@@ -93,6 +94,21 @@ body {
     font-size: 0.95rem;
     margin-bottom: 2.5rem;
     line-height: 1.6;
+}
+
+.name-link {
+    color: var(--accent-blue);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.name-link:hover {
+    text-decoration: underline;
+    transform: scale(1.02);
+}
+
+.name-link:hover .name {
+    color: var(--accent-blue);
 }
 
 .contact-section {
@@ -210,9 +226,9 @@ body {
 
 .output-line {
     margin-bottom: 0.5rem;
-    white-space: PRE-LINE;
+    white-space: pre-wrap;
     word-wrap: break-word;
-    line-height: 1.0;
+    line-height: 1.6;
 }
 
 .text-green { color: var(--accent-green); }
@@ -276,7 +292,17 @@ body {
 .input-container:focus-within .input-line {
     border-color: var(--accent-blue);
     box-shadow: 0 0 0 3px rgba(97, 175, 239, 0.2);
-    background: rgba(36, 40, 59, 0.8);
+}
+
+/* Light 主题特殊处理 */
+[data-theme="light"] .input-line {
+    background: #f6f8fa;
+}
+
+[data-theme="light"] .input-container:focus-within .input-line {
+    background: #ffffff;
+    border-color: var(--border-color);
+    box-shadow: 0 0 0 2px rgba(3, 102, 214, 0.1);
 }
 
 /* ===== 输入区域 ===== */
@@ -315,7 +341,76 @@ body {
     50% { opacity: 0; }
 }
 
+/* ===== 响应式设计 ===== */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+    
+    .terminal-window {
+        flex-direction: column;
+        height: 100vh;
+        border-radius: 0;
+        max-width: 100%;
+    }
+    
+    .sidebar {
+        width: 100%;
+        min-width: auto;
+        padding: 1.5rem 1rem;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .avatar {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .name {
+        font-size: 1.25rem;
+    }
+    
+    .bio {
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .terminal-content {
+        flex: 1;
+    }
+    
+    .terminal-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .terminal-title {
+        font-size: 0.8rem;
+    }
+    
+    .terminal-body {
+        padding: 1rem;
+    }
+    
+    .ascii-text {
+        font-size: 0.5rem;
+    }
+    
+    .input-line {
+        padding: 0.6rem 0.75rem;
+    }
+    
+    .prompt {
+        font-size: 0.9rem;
+    }
+    
+    .command-input {
+        font-size: 0.9rem;
+    }
+}
+
 /* ===== 辅助类 ===== */
 .hidden {
     display: none !important;
 }
+
