@@ -226,7 +226,7 @@ body {
 
 .output-line {
     margin-bottom: 0.5rem;
-    white-space: normal;
+    white-space: pre-line;
     word-wrap: break-word;
     line-height: 1.6;
 }
