@@ -2,20 +2,25 @@
 
 // 文章数据
 const articles = [
-    { 
-        date: '2025-01-15', 
-        title: '如何使用 CLI 工具', 
-        file: 'cli-guide.md' 
+    {
+        date: '2025-12-19',
+        title: 'Arch Linux 安装',
+        file: 'ArchLinux安装.md'
     },
-    { 
-        date: '2025-01-10', 
-        title: 'JavaScript 异步编程', 
-        file: 'async-js.md' 
+    {
+        date: '2025-01-15',
+        title: '如何使用 CLI 工具',
+        file: 'cli-guide.md'
     },
-    { 
-        date: '2025-01-05', 
-        title: '我的第一个终端项目', 
-        file: 'first-terminal.md' 
+    {
+        date: '2025-01-10',
+        title: 'JavaScript 异步编程',
+        file: 'async-js.md'
+    },
+    {
+        date: '2025-01-05',
+        title: '我的第一个终端项目',
+        file: 'first-terminal.md'
     }
 ];
 
