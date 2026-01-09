@@ -1,3 +1,9 @@
+---
+title: JavaScript 异步编程
+date: 2025-01-10
+tags: [JavaScript, 教程, 前端开发, 异步编程]
+---
+
 # JavaScript 异步编程
 
 **日期**: 2025-01-10

@@ -1,0 +1,12 @@
+/* Monokai 主题 */
+[data-theme="monokai"] {
+    --bg-primary: #272822;
+    --bg-secondary: #3e3d32;
+    --text-primary: #f8f8f2;
+    --text-secondary: #75715e;
+    --accent-green: #a6e22e;
+    --accent-blue: #66d9ef;
+    --accent-yellow: #e6db74;
+    --accent-red: #f92672;
+    --border-color: #49483e;
+}

@@ -1,0 +1,12 @@
+/* Solarized 主题 */
+[data-theme="solarized"] {
+    --bg-primary: #fdf6e3;
+    --bg-secondary: #eee8d5;
+    --text-primary: #657b83;
+    --text-secondary: #93a1a1;
+    --accent-green: #859900;
+    --accent-blue: #268bd2;
+    --accent-yellow: #b58900;
+    --accent-red: #dc322f;
+    --border-color: #b58900;
+}

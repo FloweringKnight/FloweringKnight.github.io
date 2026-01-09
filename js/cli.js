@@ -74,17 +74,33 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (commands[commandName]) {
                 const result = commands[commandName].execute(commandArgs);
-                
-                // 检查是否是 clear 命令
-                if (result === '__CLEAR__') {
-                    clearScreen();
+
+                // 处理异步命令（返回 Promise）
+                if (result instanceof Promise) {
+                    const loadingLine = document.createElement('div');
+                    loadingLine.className = 'output-line';
+                    loadingLine.innerHTML = '<span class="text-secondary">正在执行...</span>';
+                    output.appendChild(loadingLine);
+                    output.scrollTop = output.scrollHeight;
+
+                    result.then(actualResult => {
+                        loadingLine.innerHTML = actualResult;
+                        output.scrollTop = output.scrollHeight;
+                    }).catch(error => {
+                        loadingLine.innerHTML = `<span class="text-red">错误: ${error.message}</span>`;
+                    });
                 } else {
-                    const resultLine = document.createElement('div');
-                    resultLine.className = 'output-line';
-                    resultLine.innerHTML = result;
-                    output.appendChild(resultLine);
+                    // 检查是否是 clear 命令
+                    if (result === '__CLEAR__') {
+                        clearScreen();
+                    } else {
+                        const resultLine = document.createElement('div');
+                        resultLine.className = 'output-line';
+                        resultLine.innerHTML = result;
+                        output.appendChild(resultLine);
+                    }
                 }
-                
+
                 // 添加到历史记录
                 CommandHistory.addCommand(command);
             } else {

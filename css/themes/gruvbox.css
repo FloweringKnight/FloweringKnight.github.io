@@ -1,0 +1,12 @@
+/* Gruvbox 主题 */
+[data-theme="gruvbox"] {
+    --bg-primary: #282828;
+    --bg-secondary: #1d2021;
+    --text-primary: #ebdbb2;
+    --text-secondary: #928374;
+    --accent-green: #98971a;
+    --accent-blue: #458588;
+    --accent-yellow: #d79921;
+    --accent-red: #cc241d;
+    --border-color: #3c3836;
+}

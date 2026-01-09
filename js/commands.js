@@ -38,7 +38,11 @@ const commandList = [
     'history',
     'exit',
     'version',
-    'theme'
+    'theme',
+    'search',
+    'search-articles',
+    'tags',
+    'theme-preview'
 ];
 
 // 当前目录状态
@@ -60,23 +64,41 @@ const commands = {
     },
     
     ls: {
-        execute: (args) => {
+        execute: async (args) => {
             const showDetail = args.includes('-l');
-            
+            const tagFilterIndex = args.indexOf('-t');
+            const filteredByTag = tagFilterIndex !== -1 ? args[tagFilterIndex + 1] : null;
+
+            let articlesToList = [...articles];
+
+            // 按标签筛选
+            if (filteredByTag) {
+                const articlesByTag = await TagsModule.getArticlesByTag(filteredByTag);
+                if (!articlesByTag) {
+                    return `<span class="text-red">错误: 标签 "${filteredByTag}" 不存在</span>\n\n使用 "tags" 查看所有可用标签`;
+                }
+                articlesToList = articlesByTag;
+            }
+
             let output = '';
             // 按时间倒序排列
-            [...articles].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(article => {
+            articlesToList.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(article => {
                 if (showDetail) {
                     output += `<span class="text-blue">[</span>${article.date}<span class="text-blue">]</span> ${article.title} (${article.file})\n`;
                 } else {
                     output += `<a href="article.html?file=${article.file}" target="_blank" class="article-link">[${article.date}] ${article.title}</a>\n`;
                 }
             });
-            
+
+            // 如果是标签筛选，添加标签说明
+            if (filteredByTag) {
+                output = `<span class="text-green">标签 "${filteredByTag}" 下的文章 (${articlesToList.length} 篇):</span>\n\n` + output;
+            }
+
             return output;
         },
         description: '列出文章列表',
-        usage: 'ls [-l]'
+        usage: 'ls [-l] [-t <标签>]'
     },
     
     clear: {
@@ -208,7 +230,7 @@ const commands = {
     
     version: {
         execute: () => {
-            return '<span class="text-green">FAKE-CLI</span> v2.0.0\n\n作者: FloweringKnight\n技术栈: HTML/CSS/JavaScript\n部署: GitHub Pages';
+            return '<span class="text-green">FAKE-CLI</span> v3.0.0\n\n作者: FloweringKnight\n技术栈: HTML/CSS/JavaScript\n部署: GitHub Pages';
         },
         description: '显示版本信息',
         usage: 'version'
@@ -217,19 +239,197 @@ const commands = {
     theme: {
         execute: (args) => {
             if (args.length === 0) {
-                return '<span class="text-red">错误: 请指定主题名称</span>\n可用主题: dark, light, nord, dracula\n用法: theme <主题名>';
+                return '<span class="text-red">错误: 请指定主题名称</span>\n可用主题: dark, light, nord, dracula, solarized, monokai, github, gruvbox\n用法: theme <主题名>';
             }
-            
+
             const theme = args[0];
-            if (!['dark', 'light', 'nord', 'dracula'].includes(theme)) {
-                return `<span class="text-red">错误: 主题 "${theme}" 不存在</span>\n可用主题: dark, light, nord, dracula`;
+            const availableThemes = ['dark', 'light', 'nord', 'dracula', 'solarized', 'monokai', 'github', 'gruvbox'];
+
+            if (!availableThemes.includes(theme)) {
+                return `<span class="text-red">错误: 主题 "${theme}" 不存在</span>\n使用 "theme-preview" 查看所有可用主题`;
             }
-            
+
             ThemeManager.setTheme(theme);
             return `<span class="text-green">主题已切换为: ${theme}</span>`;
         },
         description: '切换主题',
         usage: 'theme <主题名>'
+    },
+
+    search: {
+        execute: (args) => {
+            if (args.length === 0) {
+                return '<span class="text-red">错误: 请指定搜索关键词</span>\n用法: search <关键词>';
+            }
+
+            const keyword = args.join(' ');
+            const matches = SearchModule.searchHistory(keyword);
+            return SearchModule.formatHistoryResults(matches, keyword);
+        },
+        description: '搜索命令历史',
+        usage: 'search <关键词>'
+    },
+
+    'search-articles': {
+        execute: async (args) => {
+            if (args.length === 0) {
+                return '<span class="text-red">错误: 请指定搜索关键词</span>\n用法: search-articles <关键词>';
+            }
+
+            const keyword = args.join(' ');
+            const output = document.createElement('div');
+            output.innerHTML = '<span class="text-secondary">正在搜索...</span>';
+
+            const matches = await SearchModule.searchArticles(keyword);
+            return SearchModule.formatArticleResults(matches, keyword);
+        },
+        description: '搜索文章内容',
+        usage: 'search-articles <关键词>'
+    },
+
+    tags: {
+        execute: async (args) => {
+            // tags -a [文章名] [tag1] [tag2] ...
+            if (args[0] === '-a' || args[0] === '--add') {
+                if (args.length < 3) {
+                    return '<span class="text-red">错误: 参数不足</span>\n用法: tags -a <文章名> <标签1> <标签2> ...';
+                }
+
+                const filename = args[1];
+                const newTags = args.slice(2);
+
+                // 查找文章
+                const article = articles.find(a => a.file === filename || a.title === filename);
+                if (!article) {
+                    return `<span class="text-red">错误: 文件 "${filename}" 不存在</span>`;
+                }
+
+                try {
+                    const response = await fetch(`articles/${article.file}`);
+                    const content = await response.text();
+
+                    // 检查是否有 Front Matter
+                    if (!content.startsWith('---')) {
+                        // 添加 Front Matter
+                        const firstLine = content.split('\n')[0];
+                        let updatedContent = `---
+title: ${article.title}
+date: ${article.date}
+tags: [${newTags.join(', ')}]
+---
+${content}`;
+
+                        // 保存文件（这里需要后端支持，前端无法直接写入文件）
+                        return `<span class="text-yellow">注意: 前端无法直接修改文件</span>
+
+请在文章文件中手动添加以下 Front Matter:
+
+\`\`\`markdown
+---
+title: ${article.title}
+date: ${article.date}
+tags: [${newTags.join(', ')}]
+---
+
+文章内容...
+\`\`\`
+
+然后刷新页面即可看到标签`;
+                    }
+
+                    // 已有 Front Matter，更新 tags
+                    const lines = content.split('\n');
+                    let inFrontMatter = true;
+                    let tagsFound = false;
+                    let updatedLines = [];
+
+                    for (let i = 0; i < lines.length; i++) {
+                        if (lines[i].startsWith('---')) {
+                            if (!inFrontMatter) {
+                                updatedLines.push(lines[i]);
+                                inFrontMatter = false;
+                                continue;
+                            }
+                            // 第一个 --- 之后继续
+                            updatedLines.push(lines[i]);
+                            continue;
+                        }
+
+                        if (inFrontMatter) {
+                            // 查找并更新 tags 行
+                            if (lines[i].toLowerCase().startsWith('tags:')) {
+                                updatedLines.push(`tags: [${newTags.join(', ')}]`);
+                                tagsFound = true;
+                            } else {
+                                updatedLines.push(lines[i]);
+                            }
+                        } else {
+                            updatedLines.push(lines[i]);
+                        }
+                    }
+
+                    if (!tagsFound) {
+                        // 在 Front Matter 结束前添加 tags
+                        const frontMatterEndIndex = updatedLines.findIndex(line => line === '---' && updatedLines.indexOf(line) > 0);
+                        if (frontMatterEndIndex > 0) {
+                            updatedLines.splice(frontMatterEndIndex, 0, `tags: [${newTags.join(', ')}]`);
+                        }
+                    }
+
+                    const updatedContent = updatedLines.join('\n');
+
+                    return `<span class="text-yellow">注意: 前端无法直接修改文件</span>
+
+请将以下内容添加到文件 "${article.file}" 的 Front Matter 中:
+
+\`\`\`markdown
+tags: [${newTags.join(', ')}]
+\`\`\`
+
+文件路径: articles/${article.file}`;
+                } catch (error) {
+                    return `<span class="text-red">错误: 无法读取文章文件 - ${error.message}</span>`;
+                }
+            }
+
+            // tags [标签名] - 查看标签下的文章
+            if (args.length === 1) {
+                const tagName = args[0];
+                return await TagsModule.formatArticlesByTag(tagName);
+            }
+
+            // tags - 列出所有标签
+            return await TagsModule.formatTagsList();
+        },
+        description: '浏览标签、查看标签下的文章或为文章添加标签',
+        usage: 'tags [-a <文章名> <标签1> <标签2> ...] | [标签名]'
+    },
+
+    'theme-preview': {
+        execute: () => {
+            const themes = [
+                { name: 'dark', color: '#1a1b26' },
+                { name: 'light', color: '#ffffff' },
+                { name: 'nord', color: '#2e3440' },
+                { name: 'dracula', color: '#282a36' },
+                { name: 'solarized', color: '#fdf6e3', isNew: true },
+                { name: 'monokai', color: '#272822', isNew: true },
+                { name: 'github', color: '#0d1117', isNew: true },
+                { name: 'gruvbox', color: '#282828', isNew: true }
+            ];
+
+            let output = '<span class="text-green">可用主题预览:</span>\n\n';
+
+            themes.forEach(theme => {
+                const badge = theme.isNew ? ' [新增]' : ' [默认]';
+                output += `${theme.name.padEnd(12)}■■■■■${badge}\n`;
+            });
+
+            output += '\n<span class="text-secondary">使用 "theme <主题名>" 切换主题</span>';
+            return output;
+        },
+        description: '预览所有主题',
+        usage: 'theme-preview'
     }
 };
 
