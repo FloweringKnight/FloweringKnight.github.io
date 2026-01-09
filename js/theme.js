@@ -58,6 +58,62 @@ const ThemeManager = {
                 '--accent-red': '#ff5555',
                 '--border-color': '#44475a'
             }
+        },
+        solarized: {
+            name: 'Solarized',
+            colors: {
+                '--bg-primary': '#fdf6e3',
+                '--bg-secondary': '#eee8d5',
+                '--text-primary': '#657b83',
+                '--text-secondary': '#93a1a1',
+                '--accent-green': '#859900',
+                '--accent-blue': '#268bd2',
+                '--accent-yellow': '#b58900',
+                '--accent-red': '#dc322f',
+                '--border-color': '#b58900'
+            }
+        },
+        monokai: {
+            name: 'Monokai',
+            colors: {
+                '--bg-primary': '#272822',
+                '--bg-secondary': '#3e3d32',
+                '--text-primary': '#f8f8f2',
+                '--text-secondary': '#75715e',
+                '--accent-green': '#a6e22e',
+                '--accent-blue': '#66d9ef',
+                '--accent-yellow': '#e6db74',
+                '--accent-red': '#f92672',
+                '--border-color': '#49483e'
+            }
+        },
+        github: {
+            name: 'GitHub',
+            colors: {
+                '--bg-primary': '#0d1117',
+                '--bg-secondary': '#161b22',
+                '--text-primary': '#c9d1d9',
+                '--text-secondary': '#8b949e',
+                '--accent-green': '#238636',
+                '--accent-blue': '#58a6ff',
+                '--accent-yellow': '#d29922',
+                '--accent-red': '#f85149',
+                '--border-color': '#30363d'
+            }
+        },
+        gruvbox: {
+            name: 'Gruvbox',
+            colors: {
+                '--bg-primary': '#282828',
+                '--bg-secondary': '#1d2021',
+                '--text-primary': '#ebdbb2',
+                '--text-secondary': '#928374',
+                '--accent-green': '#98971a',
+                '--accent-blue': '#458588',
+                '--accent-yellow': '#d79921',
+                '--accent-red': '#cc241d',
+                '--border-color': '#3c3836'
+            }
         }
     },
     
