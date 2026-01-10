@@ -31,12 +31,12 @@ const ReportsPage = {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div class="chart-container p-6">
                         <h3 class="font-semibold mb-4">月度销售趋势</h3>
-                        <canvas id="monthlySalesChart" height="300"></canvas>
+                        <canvas id="monthlySalesChart"></canvas>
                     </div>
 
                     <div class="chart-container p-6">
                         <h3 class="font-semibold mb-4">产品销售分布</h3>
-                        <canvas id="productSalesChart" height="300"></canvas>
+                        <canvas id="productSalesChart"></canvas>
                     </div>
                 </div>
 
@@ -60,9 +60,9 @@ const ReportsPage = {
                         </div>
                     </div>
 
-                    <div class="main-card p-6">
+                    <div class="chart-container p-6">
                         <h3 class="font-semibold mb-4">客户价值分布</h3>
-                        <canvas id="customerValueChart" height="200"></canvas>
+                        <canvas id="customerValueChart"></canvas>
                     </div>
 
                     <div class="main-card p-6">
@@ -228,7 +228,45 @@ const ReportsPage = {
         `;
     },
 
+    destroyCharts() {
+        Object.keys(this.charts).forEach(key => {
+            if (this.charts[key]) {
+                this.charts[key].destroy();
+                this.charts[key] = null;
+            }
+        });
+    },
+
+    ensureChartStyles() {
+        // 确保有正确的CSS规则
+        const styleId = 'reports-chart-styles';
+        if (!document.getElementById(styleId)) {
+            const style = document.createElement('style');
+            style.id = styleId;
+            style.textContent = `
+                #reports .chart-container {
+                    position: relative;
+                    height: 350px;
+                    min-height: 350px;
+                    max-height: 350px;
+                }
+                #reports .chart-container canvas {
+                    width: 100% !important;
+                    height: 100% !important;
+                    max-height: 100% !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    },
+
     init() {
+        // 销毁现有图表
+        this.destroyCharts();
+        
+        // 确保有正确的CSS样式
+        this.ensureChartStyles();
+        
         this.initMonthlySalesChart();
         this.initProductSalesChart();
         this.initCustomerValueChart();
