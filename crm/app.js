@@ -253,4 +253,17 @@ const Utils = {
 // 初始化应用
 document.addEventListener('DOMContentLoaded', () => {
     PageManager.init();
+
+    // 只限制仪表盘页面的canvas高度
+    setTimeout(() => {
+        const dashboardSection = document.getElementById('dashboard');
+        if (dashboardSection) {
+            const canvases = dashboardSection.querySelectorAll('canvas');
+            canvases.forEach(canvas => {
+                canvas.style.maxHeight = '300px';
+                canvas.style.height = '300px';
+                canvas.style.width = '100%';
+            });
+        }
+    }, 100);
 });

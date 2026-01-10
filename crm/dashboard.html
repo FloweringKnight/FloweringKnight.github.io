@@ -81,6 +81,20 @@
             border: 1px solid var(--border-color);
             border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            min-height: 350px;
+            position: relative;
+        }
+
+        .chart-container canvas {
+            max-height: 250px !important;
+            height: 250px !important;
+            width: 100% !important;
+        }
+
+        canvas#salesChart,
+        canvas#funnelChart {
+            max-height: 250px !important;
+            height: 250px !important;
         }
 
         .task-item {
@@ -732,7 +746,7 @@
                 }]
             },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
@@ -765,7 +779,7 @@
                 }]
             },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
@@ -779,6 +793,12 @@
                 cutout: '60%'
             }
         });
+
+        // 强制设置canvas高度，防止不断增高
+        setTimeout(() => {
+            document.getElementById('salesChart').style.height = '250px';
+            document.getElementById('funnelChart').style.height = '250px';
+        }, 100);
 
         // 任务复选框点击效果
         document.querySelectorAll('.task-item input[type="checkbox"]').forEach(checkbox => {

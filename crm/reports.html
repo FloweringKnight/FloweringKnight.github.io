@@ -58,6 +58,25 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.12);
         }
 
+        .main-card.has-chart {
+            min-height: 350px;
+            position: relative;
+        }
+
+        .main-card.has-chart canvas {
+            max-height: 250px !important;
+            height: 250px !important;
+            width: 100% !important;
+        }
+
+        canvas#salesTrendChart,
+        canvas#salesFunnelChart,
+        canvas#customerRegionChart,
+        canvas#teamPerformanceChart {
+            max-height: 250px !important;
+            height: 250px !important;
+        }
+
         .avatar {
             width: 40px;
             height: 40px;
@@ -450,7 +469,7 @@
             <!-- 报表详情 -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- 销售趋势图 -->
-                <div class="main-card p-6">
+                <div class="main-card has-chart p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="font-semibold">销售趋势</h3>
                         <select class="border border-gray-300 rounded-md px-3 py-1 text-sm">
@@ -463,7 +482,7 @@
                 </div>
 
                 <!-- 销售漏斗图 -->
-                <div class="main-card p-6">
+                <div class="main-card has-chart p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="font-semibold">销售漏斗</h3>
                         <button class="text-primary text-sm hover:text-primary-dark">
@@ -474,7 +493,7 @@
                 </div>
 
                 <!-- 客户分布图 -->
-                <div class="main-card p-6">
+                <div class="main-card has-chart p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="font-semibold">客户地区分布</h3>
                         <select class="border border-gray-300 rounded-md px-3 py-1 text-sm">
@@ -487,7 +506,7 @@
                 </div>
 
                 <!-- 业绩对比图 -->
-                <div class="main-card p-6">
+                <div class="main-card has-chart p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="font-semibold">团队业绩对比</h3>
                         <select class="border border-gray-300 rounded-md px-3 py-1 text-sm">
@@ -560,7 +579,7 @@
                 }]
             },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
@@ -593,7 +612,7 @@
                 }]
             },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
@@ -621,7 +640,7 @@
                 }]
             },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
@@ -649,7 +668,7 @@
                 }]
             },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
@@ -668,6 +687,14 @@
                 }
             }
         });
+
+        // 强制设置canvas高度，防止不断增高
+        setTimeout(() => {
+            document.getElementById('salesTrendChart').style.height = '250px';
+            document.getElementById('salesFunnelChart').style.height = '250px';
+            document.getElementById('customerRegionChart').style.height = '250px';
+            document.getElementById('teamPerformanceChart').style.height = '250px';
+        }, 100);
     </script>
 </body>
 </html>

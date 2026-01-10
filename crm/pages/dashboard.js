@@ -177,6 +177,12 @@ const DashboardPage = {
     init() {
         this.initSalesChart();
         this.initCustomerChart();
+
+        // 强制设置canvas高度，防止不断增高
+        setTimeout(() => {
+            document.getElementById('salesChart').style.height = '300px';
+            document.getElementById('customerChart').style.height = '300px';
+        }, 100);
     },
 
     initSalesChart() {
@@ -197,7 +203,7 @@ const DashboardPage = {
                 }]
             },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
@@ -238,7 +244,7 @@ const DashboardPage = {
                 }]
             },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
