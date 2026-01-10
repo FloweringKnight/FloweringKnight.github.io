@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务日历 - CRM系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+        }
+
+        :root {
+            --primary: #0969da;
+            --primary-dark: #0550ae;
+            --success: #238636;
+            --success-light: #3fb950;
+            --warning: #9e6a03;
+            --warning-light: #d29922;
+            --danger: #da3633;
+            --danger-light: #f85149;
+            --bg-secondary: #f6f8fa;
+            --text-primary: #24292f;
+            --text-secondary: #57606a;
+            --border-color: #d0d7de;
+        }
+
+        body {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .sidebar {
+            background-color: #0d1117;
+            color: #ffffff;
+        }
+
+        .sidebar-item {
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-item:hover {
+            background-color: #161b22;
+        }
+
+        .sidebar-item.active {
+            background-color: var(--primary);
+        }
+
+        .main-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.13);
+            z-index: 1000;
+            min-width: 200px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border-left: 1px solid var(--border-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .calendar-day-header {
+            padding: 12px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+        }
+
+        .calendar-day {
+            min-height: 120px;
+            padding: 8px;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .calendar-day:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .calendar-day.today {
+            background-color: #ddf4ff;
+        }
+
+        .calendar-day.other-month {
+            background-color: #fafbfc;
+            color: var(--text-secondary);
+        }
+
+        .calendar-day-number {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .calendar-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .calendar-task {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .calendar-task:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .calendar-task.high {
+            background-color: #ffcccc;
+            color: var(--danger);
+            border-left: 3px solid var(--danger);
+        }
+
+        .calendar-task.medium {
+            background-color: #fff5a9;
+            color: var(--warning);
+            border-left: 3px solid var(--warning);
+        }
+
+        .calendar-task.low {
+            background-color: #daeaeb;
+            color: var(--success);
+            border-left: 3px solid var(--success);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -240px;
+                top: 0;
+                height: 100%;
+                z-index: 1001;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 1000;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .calendar-day {
+                min-height: 80px;
+                font-size: 12px;
+            }
+
+            .calendar-task {
+                font-size: 10px;
+                padding: 1px 4px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 移动端遮罩层 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar w-64 min-h-screen fixed left-0 top-0 flex flex-col" id="sidebar">
+        <!-- Logo区域 -->
+        <div class="p-4 border-b border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                    <i class="fas fa-building text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-semibold text-lg">CRM系统</h1>
+                    <p class="text-xs text-gray-400">企业客户关系管理</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户信息 -->
+        <div class="p-4 border-b border-gray-700">
+            <div class="flex items-center space-x-3">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+                <div>
+                    <p class="font-medium">张三</p>
+                    <p class="text-xs text-gray-400">销售经理</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="flex-1 overflow-y-auto">
+            <ul class="py-2">
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-home w-5 text-center mr-3"></i>
+                        <span>仪表盘</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-users w-5 text-center mr-3"></i>
+                        <span>客户管理</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-chart-line w-5 text-center mr-3"></i>
+                        <span>销售机会</span>
+                    </a>
+                </li>
+                <li class="sidebar-item active">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-tasks w-5 text-center mr-3"></i>
+                        <span>任务中心</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-bullhorn w-5 text-center mr-3"></i>
+                        <span>营销活动</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-chart-bar w-5 text-center mr-3"></i>
+                        <span>报表分析</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-user-cog w-5 text-center mr-3"></i>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-cog w-5 text-center mr-3"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- 底部菜单 -->
+        <div class="p-4 border-t border-gray-700">
+            <ul>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-question-circle w-5 text-center mr-3"></i>
+                        <span>帮助与反馈</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 min-h-screen" id="mainContent">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-50">
+            <div class="flex items-center justify-between">
+                <!-- 移动端菜单按钮 -->
+                <button class="md:hidden text-gray-600 hover:text-gray-900" id="menuToggle">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <!-- 面包屑导航 -->
+                <nav class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-home mr-2"></i>
+                    <span>首页</span>
+                    <span class="mx-2">/</span>
+                    <span class="text-gray-900">任务中心</span>
+                    <span class="mx-2">/</span>
+                    <span class="text-gray-900">任务日历</span>
+                </nav>
+
+                <!-- 右侧工具栏 -->
+                <div class="flex items-center space-x-4">
+                    <!-- 通知中心 -->
+                    <div class="relative" id="notificationDropdown">
+                        <button class="text-gray-600 hover:text-gray-900 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu" id="notificationMenu">
+                            <div class="p-3 border-b border-gray-200">
+                                <p class="font-medium text-sm">通知中心</p>
+                            </div>
+                            <div class="py-2">
+                                <div class="dropdown-item">
+                                    <p class="text-sm font-medium">新客户提醒</p>
+                                    <p class="text-xs text-gray-500">张总添加了新客户</p>
+                                </div>
+                                <div class="dropdown-item">
+                                    <p class="text-sm font-medium">任务截止提醒</p>
+                                    <p class="text-xs text-gray-500">您有2个任务即将到期</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 用户菜单 -->
+                    <div class="relative" id="userDropdown">
+                        <button class="flex items-center space-x-2 hover:text-gray-900">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-8 h-8 rounded-full object-cover">
+                            <span class="hidden md:inline text-sm font-medium">张三</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div class="dropdown-menu" id="userMenu">
+                            <div class="py-2">
+                                <div class="dropdown-item">
+                                    <i class="fas fa-user w-5 text-center mr-2"></i>
+                                    <span class="text-sm">个人资料</span>
+                                </div>
+                                <div class="dropdown-item">
+                                    <i class="fas fa-cog w-5 text-center mr-2"></i>
+                                    <span class="text-sm">账户设置</span>
+                                </div>
+                                <div class="dropdown-item text-red-600">
+                                    <i class="fas fa-sign-out-alt w-5 text-center mr-2"></i>
+                                    <span class="text-sm">退出登录</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="p-6">
+            <!-- 页面标题和操作 -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">任务日历</h2>
+                    <p class="text-gray-600 mt-1">以日历视图查看和安排任务</p>
+                </div>
+                <div class="flex items-center space-x-3 mt-4 md:mt-0">
+                    <button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        创建任务
+                    </button>
+                    <button class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center">
+                        <i class="fas fa-filter mr-2"></i>
+                        筛选
+                    </button>
+                </div>
+            </div>
+
+            <!-- 日历视图 -->
+            <div class="main-card">
+                <!-- 日历头部 -->
+                <div class="calendar-header">
+                    <div class="flex items-center space-x-4">
+                        <button class="p-2 hover:bg-gray-100 rounded-lg" id="prevMonth">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h3 class="text-lg font-semibold" id="currentMonth">2025年1月</h3>
+                        <button class="p-2 hover:bg-gray-100 rounded-lg" id="nextMonth">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+                            今天
+                        </button>
+                        <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 日历网格 -->
+                <div class="calendar-grid">
+                    <!-- 星期标题 -->
+                    <div class="calendar-day-header">周日</div>
+                    <div class="calendar-day-header">周一</div>
+                    <div class="calendar-day-header">周二</div>
+                    <div class="calendar-day-header">周三</div>
+                    <div class="calendar-day-header">周四</div>
+                    <div class="calendar-day-header">周五</div>
+                    <div class="calendar-day-header">周六</div>
+
+                    <!-- 日历日期 -->
+                    <!-- 上个月 -->
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">29</div>
+                    </div>
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">30</div>
+                    </div>
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">31</div>
+                    </div>
+
+                    <!-- 本月 -->
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">1</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">2</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task medium">客户会议</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">3</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task low">文档整理</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">4</div>
+                    </div>
+
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">5</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task high">方案演示</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">6</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task medium">需求分析</div>
+                            <div class="calendar-task low">邮件回复</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">7</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">8</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task high">客户跟进</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">9</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task medium">报价准备</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">10</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">11</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task high">商务谈判</div>
+                        </div>
+                    </div>
+
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">12</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task medium">合同审核</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">13</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task low">数据录入</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">14</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task high">方案演示</div>
+                            <div class="calendar-task medium">会议准备</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day today">
+                        <div class="calendar-day-number">15</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task high">客户跟进</div>
+                            <div class="calendar-task medium">报告编写</div>
+                            <div class="calendar-task low">信息更新</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">16</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task high">演示准备</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">17</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">18</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task medium">报价提交</div>
+                        </div>
+                    </div>
+
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">19</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task low">文档归档</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">20</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task high">客户会议</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">21</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">22</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task medium">需求调研</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">23</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task low">邮件处理</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">24</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">25</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task high">合同签署</div>
+                        </div>
+                    </div>
+
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">26</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task medium">项目启动</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">27</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">28</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task low">周报提交</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">29</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">30</div>
+                        <div class="calendar-tasks">
+                            <div class="calendar-task high">月度总结</div>
+                        </div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">31</div>
+                    </div>
+
+                    <!-- 下个月 -->
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">1</div>
+                    </div>
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">2</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换（移动端）
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('show');
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('show');
+        });
+
+        // 下拉菜单
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationMenu = document.getElementById('notificationMenu');
+        const userDropdown = document.getElementById('userDropdown');
+        const userMenu = document.getElementById('userMenu');
+
+        notificationDropdown.addEventListener('click', () => {
+            notificationMenu.classList.toggle('show');
+            userMenu.classList.remove('show');
+        });
+
+        userDropdown.addEventListener('click', () => {
+            userMenu.classList.toggle('show');
+            notificationMenu.classList.remove('show');
+        });
+
+        // 点击外部关闭下拉菜单
+        document.addEventListener('click', (e) => {
+            if (!notificationDropdown.contains(e.target)) {
+                notificationMenu.classList.remove('show');
+            }
+            if (!userDropdown.contains(e.target)) {
+                userMenu.classList.remove('show');
+            }
+        });
+
+        // 日历任务点击
+        document.querySelectorAll('.calendar-task').forEach(task => {
+            task.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // 显示任务详情
+                alert('任务详情: ' + task.textContent);
+            });
+        });
+
+        // 日历日期点击
+        document.querySelectorAll('.calendar-day:not(.other-month)').forEach(day => {
+            day.addEventListener('click', () => {
+                const dayNumber = day.querySelector('.calendar-day-number');
+                if (dayNumber) {
+                    // 可以在这里添加创建任务的逻辑
+                    console.log('点击了日期: ' + dayNumber.textContent);
+                }
+            });
+        });
+
+        // 月份切换
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        const currentMonthEl = document.getElementById('currentMonth');
+
+        prevMonthBtn.addEventListener('click', () => {
+            // 切换到上个月
+            console.log('切换到上个月');
+        });
+
+        nextMonthBtn.addEventListener('click', () => {
+            // 切换到下个月
+            console.log('切换到下个月');
+        });
+    </script>
+</body>
+</html>

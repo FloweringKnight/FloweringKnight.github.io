@@ -148,6 +148,20 @@ body {
     font-size: 0.9rem;
 }
 
+/* CRM链接特殊样式 */
+.crm-link {
+    background: linear-gradient(135deg, rgba(97, 175, 239, 0.1) 0%, rgba(152, 195, 121, 0.1) 100%);
+    border-color: var(--accent-blue);
+    font-weight: 500;
+}
+
+.crm-link:hover {
+    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-green) 100%);
+    color: var(--bg-primary);
+    border-color: transparent;
+    box-shadow: 0 6px 16px rgba(97, 175, 239, 0.4);
+}
+
 /* ===== 右侧终端内容 ===== */
 .terminal-content {
     flex: 1;

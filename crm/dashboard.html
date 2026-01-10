@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表盘 - CRM系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+        }
+
+        :root {
+            --primary: #0969da;
+            --primary-dark: #0550ae;
+            --primary-light: #58a6ff;
+            --success: #238636;
+            --success-light: #3fb950;
+            --warning: #9e6a03;
+            --warning-light: #d29922;
+            --danger: #da3633;
+            --danger-light: #f85149;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f6f8fa;
+            --text-primary: #24292f;
+            --text-secondary: #57606a;
+            --border-color: #d0d7de;
+        }
+
+        body {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .sidebar {
+            background-color: #0d1117;
+            color: #ffffff;
+        }
+
+        .sidebar-item {
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-item:hover {
+            background-color: #161b22;
+        }
+
+        .sidebar-item.active {
+            background-color: var(--primary);
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            transition: all 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.13);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+
+        .task-item {
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .priority-high {
+            border-left: 3px solid var(--danger);
+        }
+
+        .priority-medium {
+            border-left: 3px solid var(--warning);
+        }
+
+        .priority-low {
+            border-left: 3px solid var(--success);
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: #daeaeb;
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: #fff5a9;
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background-color: #ffcccc;
+            color: var(--danger);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background-color: var(--bg-secondary);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.13);
+            z-index: 1000;
+            min-width: 200px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -240px;
+                top: 0;
+                height: 100%;
+                z-index: 1001;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 1000;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 移动端遮罩层 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar w-64 min-h-screen fixed left-0 top-0 flex flex-col" id="sidebar">
+        <!-- Logo区域 -->
+        <div class="p-4 border-b border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                    <i class="fas fa-building text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-semibold text-lg">CRM系统</h1>
+                    <p class="text-xs text-gray-400">企业客户关系管理</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户信息 -->
+        <div class="p-4 border-b border-gray-700">
+            <div class="flex items-center space-x-3">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+                <div>
+                    <p class="font-medium">张三</p>
+                    <p class="text-xs text-gray-400">销售经理</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="flex-1 overflow-y-auto">
+            <ul class="py-2">
+                <li class="sidebar-item active">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-home w-5 text-center mr-3"></i>
+                        <span>仪表盘</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-users w-5 text-center mr-3"></i>
+                        <span>客户管理</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-chart-line w-5 text-center mr-3"></i>
+                        <span>销售机会</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-tasks w-5 text-center mr-3"></i>
+                        <span>任务中心</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-bullhorn w-5 text-center mr-3"></i>
+                        <span>营销活动</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-chart-bar w-5 text-center mr-3"></i>
+                        <span>报表分析</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-user-cog w-5 text-center mr-3"></i>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-cog w-5 text-center mr-3"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- 底部菜单 -->
+        <div class="p-4 border-t border-gray-700">
+            <ul>
+                <li class="sidebar-item">
+                    <a href="#" class="flex items-center px-4 py-3 text-sm">
+                        <i class="fas fa-question-circle w-5 text-center mr-3"></i>
+                        <span>帮助与反馈</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 min-h-screen" id="mainContent">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-50">
+            <div class="flex items-center justify-between">
+                <!-- 移动端菜单按钮 -->
+                <button class="md:hidden text-gray-600 hover:text-gray-900" id="menuToggle">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <!-- 面包屑导航 -->
+                <nav class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-home mr-2"></i>
+                    <span>首页</span>
+                    <span class="mx-2">/</span>
+                    <span class="text-gray-900">仪表盘</span>
+                </nav>
+
+                <!-- 右侧工具栏 -->
+                <div class="flex items-center space-x-4">
+                    <!-- 搜索框 -->
+                    <div class="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2">
+                        <i class="fas fa-search text-gray-400 mr-2"></i>
+                        <input type="text" placeholder="搜索客户、任务..." class="bg-transparent outline-none text-sm w-48">
+                    </div>
+
+                    <!-- 通知中心 -->
+                    <div class="relative" id="notificationDropdown">
+                        <button class="text-gray-600 hover:text-gray-900 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu" id="notificationMenu">
+                            <div class="p-3 border-b border-gray-200">
+                                <p class="font-medium text-sm">通知中心</p>
+                            </div>
+                            <div class="py-2">
+                                <div class="dropdown-item">
+                                    <p class="text-sm font-medium">新客户提醒</p>
+                                    <p class="text-xs text-gray-500">张总添加了新客户</p>
+                                </div>
+                                <div class="dropdown-item">
+                                    <p class="text-sm font-medium">任务截止提醒</p>
+                                    <p class="text-xs text-gray-500">您有2个任务即将到期</p>
+                                </div>
+                                <div class="dropdown-item">
+                                    <p class="text-sm font-medium">系统更新通知</p>
+                                    <p class="text-xs text-gray-500">系统将于今晚升级</p>
+                                </div>
+                            </div>
+                            <div class="p-3 border-t border-gray-200">
+                                <button class="w-full text-center text-sm text-primary hover:text-primary-dark">查看全部</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 用户菜单 -->
+                    <div class="relative" id="userDropdown">
+                        <button class="flex items-center space-x-2 hover:text-gray-900">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-8 h-8 rounded-full object-cover">
+                            <span class="hidden md:inline text-sm font-medium">张三</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div class="dropdown-menu" id="userMenu">
+                            <div class="p-3 border-b border-gray-200">
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+                                    <div>
+                                        <p class="font-medium text-sm">张三</p>
+                                        <p class="text-xs text-gray-500">销售经理</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="py-2">
+                                <div class="dropdown-item">
+                                    <i class="fas fa-user w-5 text-center mr-2"></i>
+                                    <span class="text-sm">个人资料</span>
+                                </div>
+                                <div class="dropdown-item">
+                                    <i class="fas fa-cog w-5 text-center mr-2"></i>
+                                    <span class="text-sm">账户设置</span>
+                                </div>
+                                <div class="dropdown-item text-red-600">
+                                    <i class="fas fa-sign-out-alt w-5 text-center mr-2"></i>
+                                    <span class="text-sm">退出登录</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="p-6">
+            <!-- 页面标题 -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">仪表盘</h2>
+                <p class="text-gray-600 mt-1">欢迎回来，张三！这是您的业务概览。</p>
+            </div>
+
+            <!-- KPI卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- 总销售额 -->
+                <div class="kpi-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="stat-icon bg-blue-100 text-primary">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <span class="badge badge-success flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            12.5%
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">¥1,245,000</h3>
+                    <p class="text-sm text-gray-600 mt-1">总销售额</p>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>月度目标: ¥2,000,000</span>
+                            <span>62%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-primary" style="width: 62%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 新增客户 -->
+                <div class="kpi-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="stat-icon bg-green-100 text-success">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <span class="badge badge-success flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            8.3%
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">156</h3>
+                    <p class="text-sm text-gray-600 mt-1">新增客户</p>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>月度目标: 200</span>
+                            <span>78%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-success-light" style="width: 78%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 销售机会 -->
+                <div class="kpi-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="stat-icon bg-yellow-100 text-warning">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <span class="badge badge-warning flex items-center">
+                            <i class="fas fa-minus mr-1"></i>
+                            2.1%
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">89</h3>
+                    <p class="text-sm text-gray-600 mt-1">销售机会</p>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>转化率: 34%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-warning-light" style="width: 34%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务完成 -->
+                <div class="kpi-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="stat-icon bg-purple-100 text-purple-600">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <span class="badge badge-success flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            15.2%
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">234</h3>
+                    <p class="text-sm text-gray-600 mt-1">已完成任务</p>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>完成率: 87%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-purple-600" style="width: 87%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- 销售趋势图 -->
+                <div class="chart-container lg:col-span-2 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold">销售趋势</h3>
+                        <select class="border border-gray-300 rounded-md px-3 py-1 text-sm">
+                            <option>本月</option>
+                            <option>本季度</option>
+                            <option>本年度</option>
+                        </select>
+                    </div>
+                    <canvas id="salesChart" height="200"></canvas>
+                </div>
+
+                <!-- 销售漏斗 -->
+                <div class="chart-container p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold">销售漏斗</h3>
+                        <button class="text-primary text-sm hover:text-primary-dark">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <canvas id="funnelChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- 任务和团队 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 待办任务 -->
+                <div class="chart-container lg:col-span-2 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold">待办任务</h3>
+                        <button class="text-primary text-sm hover:text-primary-dark">
+                            查看全部
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        <!-- 任务1 -->
+                        <div class="task-item priority-high p-4 bg-white rounded-md">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start space-x-3">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
+                                    <div>
+                                        <h4 class="font-medium text-sm">跟进华兴科技客户</h4>
+                                        <p class="text-xs text-gray-500 mt-1">跟进华兴科技的李总，讨论合同细节</p>
+                                        <div class="flex items-center space-x-4 mt-2">
+                                            <span class="text-xs text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>
+                                                今天 14:00
+                                            </span>
+                                            <span class="badge badge-danger">高优先级</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="任务负责人" class="w-8 h-8 rounded-full object-cover">
+                            </div>
+                        </div>
+
+                        <!-- 任务2 -->
+                        <div class="task-item priority-medium p-4 bg-white rounded-md">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start space-x-3">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
+                                    <div>
+                                        <h4 class="font-medium text-sm">完成季度销售报告</h4>
+                                        <p class="text-xs text-gray-500 mt-1">整理Q4销售数据，制作PPT汇报材料</p>
+                                        <div class="flex items-center space-x-4 mt-2">
+                                            <span class="text-xs text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>
+                                                明天 10:00
+                                            </span>
+                                            <span class="badge badge-warning">中优先级</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="任务负责人" class="w-8 h-8 rounded-full object-cover">
+                            </div>
+                        </div>
+
+                        <!-- 任务3 -->
+                        <div class="task-item priority-low p-4 bg-white rounded-md">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start space-x-3">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
+                                    <div>
+                                        <h4 class="font-medium text-sm">更新客户信息</h4>
+                                        <p class="text-xs text-gray-500 mt-1">完善新客户的联系方式和公司信息</p>
+                                        <div class="flex items-center space-x-4 mt-2">
+                                            <span class="text-xs text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>
+                                                2025-01-18
+                                            </span>
+                                            <span class="badge badge-success">低优先级</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" alt="任务负责人" class="w-8 h-8 rounded-full object-cover">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 团队业绩排行 -->
+                <div class="chart-container p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold">团队业绩</h3>
+                        <button class="text-primary text-sm hover:text-primary-dark">
+                            查看详情
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- 排行1 -->
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-white font-bold text-sm">1</div>
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="团队成员" class="w-10 h-10 rounded-full object-cover">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">张三</p>
+                                <p class="text-xs text-gray-500">¥456,000</p>
+                            </div>
+                            <span class="text-sm font-medium text-success">+12%</span>
+                        </div>
+
+                        <!-- 排行2 -->
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold text-sm">2</div>
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="团队成员" class="w-10 h-10 rounded-full object-cover">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">李四</p>
+                                <p class="text-xs text-gray-500">¥389,000</p>
+                            </div>
+                            <span class="text-sm font-medium text-success">+8%</span>
+                        </div>
+
+                        <!-- 排行3 -->
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-orange-400 flex items-center justify-center text-white font-bold text-sm">3</div>
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" alt="团队成员" class="w-10 h-10 rounded-full object-cover">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">王五</p>
+                                <p class="text-xs text-gray-500">¥345,000</p>
+                            </div>
+                            <span class="text-sm font-medium text-success">+15%</span>
+                        </div>
+
+                        <!-- 排行4 -->
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold text-sm">4</div>
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face" alt="团队成员" class="w-10 h-10 rounded-full object-cover">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">赵六</p>
+                                <p class="text-xs text-gray-500">¥298,000</p>
+                            </div>
+                            <span class="text-sm font-medium text-danger">-3%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换（移动端）
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('show');
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('show');
+        });
+
+        // 下拉菜单
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationMenu = document.getElementById('notificationMenu');
+        const userDropdown = document.getElementById('userDropdown');
+        const userMenu = document.getElementById('userMenu');
+
+        notificationDropdown.addEventListener('click', () => {
+            notificationMenu.classList.toggle('show');
+            userMenu.classList.remove('show');
+        });
+
+        userDropdown.addEventListener('click', () => {
+            userMenu.classList.toggle('show');
+            notificationMenu.classList.remove('show');
+        });
+
+        // 点击外部关闭下拉菜单
+        document.addEventListener('click', (e) => {
+            if (!notificationDropdown.contains(e.target)) {
+                notificationMenu.classList.remove('show');
+            }
+            if (!userDropdown.contains(e.target)) {
+                userMenu.classList.remove('show');
+            }
+        });
+
+        // 销售趋势图
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                datasets: [{
+                    label: '销售额',
+                    data: [120, 150, 180, 220, 200, 250, 280, 320, 290, 350, 400, 450],
+                    borderColor: '#0969da',
+                    backgroundColor: 'rgba(9, 105, 218, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '¥' + value + 'K';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 销售漏斗图
+        const funnelCtx = document.getElementById('funnelChart').getContext('2d');
+        new Chart(funnelCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['潜在客户', '意向客户', '谈判客户', '成交客户'],
+                datasets: [{
+                    data: [300, 200, 150, 89],
+                    backgroundColor: ['#0969da', '#58a6ff', '#3fb950', '#238636'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // 任务复选框点击效果
+        document.querySelectorAll('.task-item input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const taskItem = this.closest('.task-item');
+                if (this.checked) {
+                    taskItem.style.opacity = '0.5';
+                    taskItem.querySelector('h4').style.textDecoration = 'line-through';
+                } else {
+                    taskItem.style.opacity = '1';
+                    taskItem.querySelector('h4').style.textDecoration = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
