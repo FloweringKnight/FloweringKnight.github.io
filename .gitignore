@@ -74,5 +74,8 @@ build-iPhoneSimulator/
 # 需求文档 (本地管理)
 .requirement/
 
+# CodeBuddy Code 配置 (本地管理)
+CODEBUDDY.md
+
 # IDE
 .idea/
