@@ -3,6 +3,11 @@
 // 文章数据
 const articles = [
     {
+        date: '2026-01-11',
+        title: '我与 Claude Skills 的初次相遇',
+        file: '我与Claude Skills的初次相遇.md'
+    },
+    {
         date: '2025-12-19',
         title: 'Arch Linux 安装',
         file: 'ArchLinux安装.md'
