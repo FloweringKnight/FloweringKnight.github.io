@@ -269,6 +269,7 @@ body {
 .article-main {
     flex: 1;
     min-width: 0;
+    padding-left: 2rem;
 }
 
 /* ===== 文章目录 ===== */
@@ -281,6 +282,7 @@ body {
     overflow-y: auto;
     padding-left: 2rem;
     border-left: 1px solid var(--article-divider);
+    border-right: 1px solid var(--article-divider);
 }
 
 .toc-title {
