@@ -162,6 +162,19 @@ body {
     box-shadow: 0 6px 16px rgba(97, 175, 239, 0.4);
 }
 
+.erp-link {
+    background: linear-gradient(135deg, rgba(139, 179, 255, 0.1) 0%, rgba(180, 142, 217, 0.1) 100%);
+    border-color: #8BB3FF;
+    font-weight: 500;
+}
+
+.erp-link:hover {
+    background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+    color: var(--bg-primary);
+    border-color: transparent;
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
 /* ===== 右侧终端内容 ===== */
 .terminal-content {
     flex: 1;

@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业资产管理ERP系统 - 资产领用申请</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #3B82F6;
+            --secondary: #64748B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --bg-body: #F5F7FA;
+            --bg-white: #FFFFFF;
+            --bg-sidebar: #1E293B;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-light: #94A3B8;
+            --border-color: #E2E8F0;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Chrome Browser Bar */
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .browser-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .browser-controls .control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .browser-controls .control.close { background: #FF5F57; }
+        .browser-controls .control.minimize { background: #FEBC2E; }
+        .browser-controls .control.maximize { background: #28C840; }
+
+        .browser-address {
+            flex: 1;
+            background: #3A3A3A;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 16px;
+            color: #B8B8B8;
+            font-size: 13px;
+            font-family: 'Noto Sans SC', sans-serif;
+            text-align: center;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: calc(100vh - 48px);
+            margin-top: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: calc(100vh - 48px);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 16px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-label {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-badge {
+            background: var(--danger);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .user-profile:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn-small {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+        }/* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #F8FAFC;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        /* Form Container */
+        .form-container {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .form-section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-label .required {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: var(--text-primary);
+            background: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: var(--text-light);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Asset Selection */
+        .asset-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .asset-search {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .asset-search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .asset-search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .asset-filter {
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .asset-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+        }
+
+        .asset-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .asset-item:hover {
+            background: #F8FAFC;
+        }
+
+        .asset-item:last-child {
+            border-bottom: none;
+        }
+
+        .asset-item.selected {
+            background: rgba(37, 99, 235, 0.05);
+            border-left: 3px solid var(--primary);
+        }
+
+        .asset-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: #F1F5F9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .asset-item-info {
+            flex: 1;
+        }
+
+        .asset-item-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .asset-item-code {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .asset-item-status {
+            padding: 4px 8px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Selected Assets */
+        .selected-assets {
+            margin-top: 16px;
+        }
+
+        .selected-asset-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #F8FAFC;
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+        }
+
+        .selected-asset-icon {
+            font-size: 24px;
+        }
+
+        .selected-asset-info {
+            flex: 1;
+        }
+
+        .selected-asset-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .selected-asset-code {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .selected-asset-remove {
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 32px;
+        }
+
+        /* Approval Flow */
+        .approval-flow {
+            background: #F8FAFC;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .flow-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            right: 40px;
+            height: 2px;
+            background: var(--border-color);
+        }
+
+        .flow-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 1;
+        }
+
+        .flow-step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--text-light);
+            transition: all 0.2s ease;
+        }
+
+        .flow-step.active .flow-step-icon {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .flow-step.completed .flow-step-icon {
+            border-color: var(--success);
+            background: var(--success);
+            color: #fff;
+        }
+
+        .flow-step-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .flow-step.active .flow-step-label,
+        .flow-step.completed .flow-step-label {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .flow-info {
+            padding: 16px;
+            background: #fff;
+            border-radius: var(--radius-md);
+        }
+
+        .flow-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .flow-info-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .flow-info-value {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+        }
+    </style>
+    <script src="sidebar.js"></script>
+</head>
+<body>
+    <!-- Chrome Browser Bar -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h1 class="header-title">资产领用申请</h1>
+                    <p class="header-subtitle">员工领用资产的申请和审批</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary">
+                        <span>📋</span>
+                        查看历史
+                    </button>
+                </div>
+            </header>
+
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>填写领用申请</h2>
+                    <p>请认真填写以下信息，提交后将进入审批流程</p>
+                </div>
+
+                <form id="borrowForm">
+                    <!-- 审批流程 -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">审批流程</h3>
+                        <div class="approval-flow">
+                            <div class="flow-steps">
+                                <div class="flow-step completed">
+                                    <div class="flow-step-icon">✓</div>
+                                    <div class="flow-step-label">提交申请</div>
+                                </div>
+                                <div class="flow-step active">
+                                    <div class="flow-step-icon">⏳</div>
+                                    <div class="flow-step-label">部门审批</div>
+                                </div>
+                                <div class="flow-step">
+                                    <div class="flow-step-icon">📋</div>
+                                    <div class="flow-step-label">资产确认</div>
+                                </div>
+                                <div class="flow-step">
+                                    <div class="flow-step-icon">📦</div>
+                                    <div class="flow-step-label">资产发放</div>
+                                </div>
+                            </div>
+                            <div class="flow-info">
+                                <div class="flow-info-item">
+                                    <span class="flow-info-label">当前审批人</span>
+                                    <span class="flow-info-value">王经理（IT部）</span>
+                                </div>
+                                <div class="flow-info-item">
+                                    <span class="flow-info-label">预计审批时间</span>
+                                    <span class="flow-info-value">1-2个工作日</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 选择资产 -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">选择资产</h3>
+                        <div class="asset-selector">
+                            <div class="asset-search">
+                                <input type="text" class="asset-search-input" placeholder="搜索资产名称、编号、品牌...">
+                                <select class="asset-filter">
+                                    <option value="">全部分类</option>
+                                    <option value="office">办公设备</option>
+                                    <option value="it">IT设备</option>
+                                    <option value="furniture">家具</option>
+                                </select>
+                            </div>
+                            <div class="asset-list">
+                                <div class="asset-item">
+                                    <div class="asset-item-icon">💻</div>
+                                    <div class="asset-item-info">
+                                        <div class="asset-item-name">ThinkPad X1 Carbon Gen 11</div>
+                                        <div class="asset-item-code">ZC-2024-005</div>
+                                    </div>
+                                    <div class="asset-item-status">闲置</div>
+                                </div>
+                                <div class="asset-item">
+                                    <div class="asset-item-icon">🖨️</div>
+                                    <div class="asset-item-info">
+                                        <div class="asset-item-name">HP LaserJet Pro M404dn</div>
+                                        <div class="asset-item-code">ZC-2024-012</div>
+                                    </div>
+                                    <div class="asset-item-status">闲置</div>
+                                </div>
+                                <div class="asset-item">
+                                    <div class="asset-item-icon">🪑</div>
+                                    <div class="asset-item-info">
+                                        <div class="asset-item-name">Herman Miller Aeron</div>
+                                        <div class="asset-item-code">ZC-2023-089</div>
+                                    </div>
+                                    <div class="asset-item-status">闲置</div>
+                                </div>
+                                <div class="asset-item selected">
+                                    <div class="asset-item-icon">📺</div>
+                                    <div class="asset-item-info">
+                                        <div class="asset-item-name">三星 55寸 4K显示器</div>
+                                        <div class="asset-item-code">ZC-2023-156</div>
+                                    </div>
+                                    <div class="asset-item-status">闲置</div>
+                                </div>
+                            </div>
+                            <div class="selected-assets">
+                                <div class="selected-asset-card">
+                                    <div class="selected-asset-icon">📺</div>
+                                    <div class="selected-asset-info">
+                                        <div class="selected-asset-name">三星 55寸 4K显示器</div>
+                                        <div class="selected-asset-code">ZC-2023-156</div>
+                                    </div>
+                                    <div class="selected-asset-remove">✕</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 领用信息 -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">领用信息</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    使用人姓名 <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" value="张明" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    所属部门 <span class="required">*</span>
+                                </label>
+                                <select class="form-select" required>
+                                    <option value="it" selected>IT部</option>
+                                    <option value="admin">行政部</option>
+                                    <option value="finance">财务部</option>
+                                    <option value="hr">人力资源部</option>
+                                    <option value="sales">销售部</option>
+                                    <option value="market">市场部</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    领用日期 <span class="required">*</span>
+                                </label>
+                                <input type="date" class="form-input" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    预计归还日期
+                                </label>
+                                <input type="date" class="form-input">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label">
+                                    使用用途 <span class="required">*</span>
+                                </label>
+                                <select class="form-select" required>
+                                    <option value="">请选择使用用途</option>
+                                    <option value="work">日常工作使用</option>
+                                    <option value="project">项目临时使用</option>
+                                    <option value="meeting">会议使用</option>
+                                    <option value="test">测试使用</option>
+                                    <option value="event">活动使用</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label">
+                                    申请原因 <span class="required">*</span>
+                                </label>
+                                <textarea class="form-textarea" placeholder="请详细说明申请领用该资产的原因和使用场景" required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    联系电话
+                                </label>
+                                <input type="tel" class="form-input" placeholder="请输入联系电话">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    存放位置
+                                </label>
+                                <input type="text" class="form-input" placeholder="请输入存放位置">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label">
+                                    备注
+                                </label>
+                                <textarea class="form-textarea" placeholder="请输入其他需要说明的信息"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 表单操作按钮 -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary">
+                            <span>💾</span>
+                            保存草稿
+                        </button>
+                        <button type="button" class="btn btn-secondary">
+                            <span>✏️</span>
+                            重新填写
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <span>📤</span>
+                            提交申请
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+<script>
+        // 登录状态检查
+        document.addEventListener('DOMContentLoaded', function() {
+            const loggedIn = localStorage.getItem('erp_logged_in');
+            if (loggedIn !== 'true') {
+                // 未登录，跳转到登录页
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 已登录，显示用户名
+            const username = localStorage.getItem('erp_username');
+            if (username) {
+                const userNameElement = document.querySelector('.user-name');
+                if (userNameElement) {
+                    userNameElement.textContent = username;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+</body>
+</html>

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - ERP资产管理系统</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #3B82F6;
+            --secondary: #64748B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --bg-body: #F5F7FA;
+            --bg-white: #FFFFFF;
+            --bg-sidebar: #1E293B;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-light: #94A3B8;
+            --border-color: #E2E8F0;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 16px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-label {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-badge {
+            background: var(--danger);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .user-profile:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn-small {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            margin-top: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-container {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: var(--text-primary);
+            background: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-select {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: var(--text-primary);
+            background: #fff;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .checkbox-custom {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-custom:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #F8FAFC;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+
+        /* User Management */
+        .user-list {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .user-item:hover {
+            background: #F8FAFC;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Notification Settings */
+        .notification-settings {
+            background: #F8FAFC;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .notification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-label {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .notification-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Data Management */
+        .data-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .data-action-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .data-action-card:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .data-action-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .data-action-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .data-action-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .data-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar will be inserted here by sidebar.js -->
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h1 class="header-title">系统设置</h1>
+                    <p class="header-subtitle">系统参数配置、用户管理、通知设置等</p>
+                </div>
+            </header>
+
+            <!-- 系统参数设置 -->
+            <div class="form-container">
+                <div class="form-section">
+                    <h3 class="section-title">系统参数</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">系统名称</label>
+                            <input type="text" class="form-input" value="企业资产管理ERP系统">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">系统版本</label>
+                            <input type="text" class="form-input" value="v3.2.0" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">资产编号前缀</label>
+                            <input type="text" class="form-input" value="ZC">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">单据编号前缀</label>
+                            <input type="text" class="form-input" value="DB/WX/BF">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">默认折旧方法</label>
+                            <select class="form-select">
+                                <option>直线法</option>
+                                <option>双倍余额递减法</option>
+                                <option>年数总和法</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">默认残值率 (%)</label>
+                            <input type="number" class="form-input" value="5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">预警天数 (报废提醒)</label>
+                            <input type="number" class="form-input" value="30">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">数据备份周期 (天)</label>
+                            <input type="number" class="form-input" value="7">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">权限配置</h3>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="checkbox-custom" id="enableApproval" checked>
+                            <label for="enableApproval" style="font-size: 14px;">启用审批流程</label>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-left: 26px;">启用后，资产调拨、报废等操作需要审批</div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="checkbox-custom" id="enableNotification" checked>
+                            <label for="enableNotification" style="font-size: 14px;">启用系统通知</label>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-left: 26px;">启用后，系统会通过邮件或站内信发送通知</div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="checkbox-custom" id="enableLog" checked>
+                            <label for="enableLog" style="font-size: 14px;">启用操作日志</label>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-left: 26px;">记录所有用户的操作行为，便于审计</div>
+                    </div>
+
+                    <div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="checkbox-custom" id="enableAPI">
+                            <label for="enableAPI" style="font-size: 14px;">启用API接口</label>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-left: 26px;">允许第三方系统通过API访问数据</div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="resetSettings()">重置</button>
+                    <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+                </div>
+            </div>
+
+            <!-- 用户管理 -->
+            <div class="form-container">
+                <div class="form-section">
+                    <h3 class="section-title">用户管理</h3>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div style="font-size: 14px; color: var(--text-secondary);">系统用户列表</div>
+                        <button class="btn btn-primary btn-small" onclick="alert('添加用户功能')">
+                            <span>➕</span>
+                            添加用户
+                        </button>
+                    </div>
+
+                    <div class="user-list">
+                        <div class="user-item">
+                            <div class="user-avatar-small">张</div>
+                            <div class="user-info">
+                                <div class="user-name">张明</div>
+                                <div class="user-role">资产管理员</div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-secondary btn-small" onclick="alert('编辑用户')">编辑</button>
+                                <button class="btn btn-danger btn-small" onclick="alert('删除用户')">删除</button>
+                            </div>
+                        </div>
+                        <div class="user-item">
+                            <div class="user-avatar-small">李</div>
+                            <div class="user-info">
+                                <div class="user-name">李经理</div>
+                                <div class="user-role">部门主管</div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-secondary btn-small" onclick="alert('编辑用户')">编辑</button>
+                                <button class="btn btn-danger btn-small" onclick="alert('删除用户')">删除</button>
+                            </div>
+                        </div>
+                        <div class="user-item">
+                            <div class="user-avatar-small">王</div>
+                            <div class="user-info">
+                                <div class="user-name">王总</div>
+                                <div class="user-role">总经理</div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-secondary btn-small" onclick="alert('编辑用户')">编辑</button>
+                                <button class="btn btn-danger btn-small" onclick="alert('删除用户')">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 通知设置 -->
+            <div class="form-container">
+                <div class="form-section">
+                    <h3 class="section-title">通知设置</h3>
+                    
+                    <div class="notification-settings">
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label">资产报废预警</div>
+                                <div class="notification-desc">当资产接近报废期限时发送提醒</div>
+                            </div>
+                            <input type="checkbox" class="checkbox-custom" checked>
+                        </div>
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label">维修完成通知</div>
+                                <div class="notification-desc">资产维修完成后通知申请人</div>
+                            </div>
+                            <input type="checkbox" class="checkbox-custom" checked>
+                        </div>
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label">审批提醒</div>
+                                <div class="notification-desc">有待审批事项时发送提醒</div>
+                            </div>
+                            <input type="checkbox" class="checkbox-custom" checked>
+                        </div>
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-label">数据备份提醒</div>
+                                <div class="notification-desc">定期提醒进行数据备份</div>
+                            </div>
+                            <input type="checkbox" class="checkbox-custom">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="saveNotificationSettings()">保存通知设置</button>
+                </div>
+            </div>
+
+            <!-- 数据管理 -->
+            <div class="form-container">
+                <div class="form-section">
+                    <h3 class="section-title">数据管理</h3>
+                    
+                    <div class="data-actions">
+                        <div class="data-action-card" onclick="alert('开始数据备份...')">
+                            <div class="data-action-icon">💾</div>
+                            <div class="data-action-title">备份数据</div>
+                            <div class="data-action-desc">将系统数据备份到本地</div>
+                        </div>
+                        <div class="data-action-card" onclick="alert('开始数据恢复...')">
+                            <div class="data-action-icon">🔄</div>
+                            <div class="data-action-title">恢复数据</div>
+                            <div class="data-action-desc">从备份文件恢复数据</div>
+                        </div>
+                        <div class="data-action-card" onclick="alert('开始数据清理...')">
+                            <div class="data-action-icon">🗑️</div>
+                            <div class="data-action-title">清理数据</div>
+                            <div class="data-action-desc">清理过期和无效数据</div>
+                        </div>
+                        <div class="data-action-card" onclick="alert('导出日志文件...')">
+                            <div class="data-action-icon">📄</div>
+                            <div class="data-action-title">导出日志</div>
+                            <div class="data-action-desc">导出系统操作日志</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="sidebar.js"></script>
+    <script>
+        function saveSettings() {
+            alert('系统设置已保存！');
+        }
+
+        function resetSettings() {
+            if (confirm('确定要重置所有设置吗？')) {
+                alert('设置已重置为默认值！');
+            }
+        }
+
+        function saveNotificationSettings() {
+            alert('通知设置已保存！');
+        }
+    </script>
+<script>
+        // 登录状态检查
+        document.addEventListener('DOMContentLoaded', function() {
+            const loggedIn = localStorage.getItem('erp_logged_in');
+            if (loggedIn !== 'true') {
+                // 未登录，跳转到登录页
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 已登录，显示用户名
+            const username = localStorage.getItem('erp_username');
+            if (username) {
+                const userNameElement = document.querySelector('.user-name');
+                if (userNameElement) {
+                    userNameElement.textContent = username;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+</body>
+</html>
