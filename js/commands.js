@@ -3,6 +3,11 @@
 // 文章数据
 const articles = [
     {
+        date: '2026-01-13',
+        title: '程序员眼中的古老宝藏：NetHack 游戏教程与体验',
+        file: '程序员眼中的古老宝藏：NetHack 游戏教程与体验.md'
+    },
+    {
         date: '2026-01-11',
         title: '我与 Claude Skills 的初次相遇',
         file: '我与Claude Skills的初次相遇.md'
