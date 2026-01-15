@@ -3,6 +3,11 @@
 // 文章数据
 const articles = [
     {
+        date: '2026-01-16',
+        title: 'AI进化简史与DeepSeek新篇章：当模型学会"查字典"',
+        file: 'AI进化简史与DeepSeek新篇章：当模型学会"查字典".md'
+    },
+    {
         date: '2026-01-13',
         title: '程序员眼中的古老宝藏：NetHack 游戏教程与体验',
         file: '程序员眼中的古老宝藏：NetHack 游戏教程与体验.md'
