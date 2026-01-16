@@ -4,8 +4,8 @@
 const articles = [
     {
         date: '2026-01-16',
-        title: 'AI进化简史与DeepSeek新篇章：当模型学会"查字典"',
-        file: 'AI进化简史与DeepSeek新篇章：当模型学会"查字典".md'
+        title: 'AI进化简史与DeepSeek新篇章：当模型学会“查字典”',
+        file: 'AI进化简史与DeepSeek新篇章：当模型学会“查字典”.md'
     },
     {
         date: '2026-01-13',
