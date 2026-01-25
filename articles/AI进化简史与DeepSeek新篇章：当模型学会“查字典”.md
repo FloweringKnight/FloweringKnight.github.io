@@ -1,5 +1,5 @@
 ---
-title: AI进化简史与DeepSeek新篇章：当模型学会"查字典"
+title: AI进化简史与DeepSeek新篇章：当模型学会“查字典”
 date: 2026-01-16
 tags: [AI, DeepSeek, 机器学习, 大语言模型, 技术论文]
 ---
