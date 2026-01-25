@@ -3,6 +3,11 @@
 // 文章数据
 const articles = [
     {
+        date: '2026-01-25',
+        title: '从零开始设计AI Agent',
+        file: '从零开始设计AI Agent.md'
+    },
+    {
         date: '2026-01-16',
         title: 'AI进化简史与DeepSeek新篇章：当模型学会“查字典”',
         file: 'AI进化简史与DeepSeek新篇章：当模型学会“查字典”.md'
